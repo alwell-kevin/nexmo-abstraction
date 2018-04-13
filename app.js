@@ -15,6 +15,9 @@ var nexmo = new Nexmo({
     privateKey: process.env.NEXMO_PRIVATE_KEY,
 });
 
+var verifyRequestId = null; // use in the check process
+var TTS = ""; //use in voice playback
+
 app.use(bodyParser.json({
     type: 'application/json'
 }));
@@ -26,16 +29,24 @@ app.post('/verify/request', (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
-    var NUMBER_TO_BE_VERIFIED = req.body.number
-    var NAME_OF_THE_APP = req.body.app
-
+    var NEXMO_TO_NUMBER = req.body.number
 
     nexmo.verify.request({
-        number: NUMBER_TO_BE_VERIFIED,
-        brand: NAME_OF_THE_APP
-    }, callback);
+        number: NEXMO_TO_NUMBER,
+        brand: "Nexmo"
+    }, function (err, result) {
+        if (err) {
+            console.error(err);
+        } else {
+            verifyRequestId = result.request_id;
+            console.log('request_id', verifyRequestId);
+        }
+    })
 
-    res.sendStatus(200);
+    res.json({
+        "status": 200,
+        "verifyRequestId": verifyRequestId
+    });
 });
 
 //Validate the response of a Verification Request
@@ -55,6 +66,9 @@ app.get('/verify/validate', (req, res) => {
         code: CODE_TO_CHECK
     }, callback);
 
+    function callback(resp) {
+        console.log("IN VERIFY CHECK CALLBACK: ", resp)
+    }
 
     res.sendStatus(200);
 });
@@ -67,9 +81,8 @@ app.post('/voice/call', (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
-    var username = req.body.username
-    var admin = req.body.admin
-
+    var TO_NUMBER = req.body.toNum
+    TTS = req.body.message
 
     nexmo.calls.create({
         to: [{
@@ -79,7 +92,8 @@ app.post('/voice/call', (req, res) => {
         from: {
             type: 'phone',
             number: process.env.NEXMO_NUMBER
-        }
+        },
+        answer_url: ['https://developer.nexmo.com/ncco/tts.json']
     }, callback);
 
     function callback(resp) {
@@ -90,24 +104,35 @@ app.post('/voice/call', (req, res) => {
 });
 
 
-app.post('/event', function (req, res) {
+
+app.post('/answer', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
-    // var message = process.env['SUPPORT_MESSAGE'];
-    // var ncco = [{
-    //         "action": "talk",
-    //         "text": "This call is enabled by Nexmo Voice API.",
-    //         "voiceName": "Amy"
-    //     },
-    //     {
-    //         "action": "talk",
-    //         "text": message,
-    //         "voiceName": "Amy"
-    //     }
-    // ];
+    var message = process.env['SUPPORT_MESSAGE'];
+    var ncco = [{
+            "action": "talk",
+            "text": "This call is enabled by Nexmo Voice API.",
+            "voiceName": "Amy"
+        },
+        {
+            "action": "talk",
+            "text": message,
+            "voiceName": "Amy"
+        }
+    ];
+
+    res.json(ncco);
+})
+
+
+app.post('/event', function (req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
     res.sendStatus(200);
 })
