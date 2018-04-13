@@ -31,7 +31,7 @@ app.post('/verify/request', (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
     var NEXMO_TO_NUMBER = req.body.number
-
+    console.log("req.body", JSON.stringify(req.body), req)
     nexmo.verify.request({
         number: NEXMO_TO_NUMBER,
         brand: "Nexmo"
@@ -41,13 +41,15 @@ app.post('/verify/request', (req, res) => {
         } else {
             verifyRequestId = result.request_id;
             console.log('request_id', verifyRequestId);
-        }
-    })
 
-    res.json({
-        "status": 200,
-        "verifyRequestId": verifyRequestId
-    });
+            return res.json({
+                "status": 200,
+                "verifyRequestId": verifyRequestId
+            });
+        }
+    }, function (resp) {
+        console.log("IN VERIFY REQUEST: ", resp)
+    })
 });
 
 //Validate the response of a Verification Request
@@ -59,19 +61,25 @@ app.get('/verify/validate', (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
     var UNIQUE_ID_FROM_VERIFICATION_REQUEST = req.query.id
-    var CODE_TO_CHECK = req.query.code
+    var CODE_TO_CHECK = req.query.verifycode
 
 
     nexmo.verify.check({
         request_id: UNIQUE_ID_FROM_VERIFICATION_REQUEST,
         code: CODE_TO_CHECK
-    }, callback);
+    }, function (err, result) {
+        if (err) {
+            console.error(err);
+            res.sendStatus(501);
+        } else {
+            verifyRequestId = result.request_id;
+            console.log('request_id', verifyRequestId);
 
-    function callback(resp) {
-        console.log("IN VERIFY CHECK CALLBACK: ", resp)
-    }
-
-    res.sendStatus(200);
+            return res.sendStatus(200);
+        }
+    }, function (resp) {
+        console.log("IN VERIFY REQUEST: ", resp)
+    });
 });
 
 //Validate the response of a Verification Request
