@@ -1,0 +1,25 @@
+{
+  "name": "nexmo-abstraction",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alwell-kevin/nexmo-abstraction.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alwell-kevin/nexmo-abstraction/issues"
+  },
+  "homepage": "https://github.com/alwell-kevin/nexmo-abstraction#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "nexmo": "^2.2.0"
+  }
+}
