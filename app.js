@@ -116,7 +116,7 @@ app.post('/voice/call', (req, res) => {
             type: 'phone',
             number: process.env.NEXMO_NUMBER
         },
-        answer_url: ['https://3e829e72.ngrok.io/answer']
+        answer_url: ['https://nexmo-abstraction.herokuapp.com/answer']
     }, function callback(resp) {
         console.log("IN CREATE CALL CALLBACK: ", resp)
     });
