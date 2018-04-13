@@ -31,7 +31,8 @@ app.post('/verify/request', (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
     var NEXMO_TO_NUMBER = req.body.number
-    console.log("req.body", JSON.stringify(req.body), req)
+    console.log("req.body", req.body);
+
     nexmo.verify.request({
         number: NEXMO_TO_NUMBER,
         brand: "Nexmo"
@@ -72,10 +73,21 @@ app.get('/verify/validate', (req, res) => {
             console.error(err);
             res.sendStatus(501);
         } else {
+            console.log("Validation result: ", result);
             verifyRequestId = result.request_id;
             console.log('request_id', verifyRequestId);
-
-            return res.sendStatus(200);
+            if (verifyRequestId) {
+                return res.json({
+                    "status": 200,
+                    "verifyRequestId": verifyRequestId,
+                    "request": "validated"
+                });
+            } else {
+                return res.json({
+                    "status": 500,
+                    "request": "validation-failed-bad-req-id"
+                });
+            }
         }
     }, function (resp) {
         console.log("IN VERIFY REQUEST: ", resp)
@@ -93,7 +105,8 @@ app.post('/voice/call', (req, res) => {
     var TO_NUMBER = req.body.toNum
     TTS = req.body.message
     VOICE = req.body.voice
-
+    console.log("to: ", TO_NUMBER, "TTS: ", TTS, "voice: ", VOICE);
+    
     nexmo.calls.create({
         to: [{
             type: 'phone',
@@ -104,11 +117,9 @@ app.post('/voice/call', (req, res) => {
             number: process.env.NEXMO_NUMBER
         },
         answer_url: ['https://developer.nexmo.com/ncco/tts.json']
-    }, callback);
-
-    function callback(resp) {
+    }, function callback(resp) {
         console.log("IN CREATE CALL CALLBACK: ", resp)
-    }
+    });
 
     res.sendStatus(200);
 });
