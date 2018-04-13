@@ -106,7 +106,7 @@ app.post('/voice/call', (req, res) => {
     TTS = req.body.message
     VOICE = req.body.voice
     console.log("to: ", TO_NUMBER, "TTS: ", TTS, "voice: ", VOICE);
-    
+
     nexmo.calls.create({
         to: [{
             type: 'phone',
@@ -116,7 +116,7 @@ app.post('/voice/call', (req, res) => {
             type: 'phone',
             number: process.env.NEXMO_NUMBER
         },
-        answer_url: ['https://developer.nexmo.com/ncco/tts.json']
+        answer_url: ['https://3e829e72.ngrok.io/answer']
     }, function callback(resp) {
         console.log("IN CREATE CALL CALLBACK: ", resp)
     });
@@ -126,22 +126,21 @@ app.post('/voice/call', (req, res) => {
 
 
 
-app.post('/answer', function (req, res) {
+app.all('/answer', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
-    var message = process.env['SUPPORT_MESSAGE'];
     var ncco = [{
             "action": "talk",
             "text": "This call is enabled by Nexmo Voice API.",
-            "voiceName": "Amy"
+            "voiceName": VOICE
         },
         {
             "action": "talk",
-            "text": message,
-            "voiceName": "Amy"
+            "text": TTS,
+            "voiceName": VOICE
         }
     ];
 
