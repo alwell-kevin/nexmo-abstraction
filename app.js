@@ -17,6 +17,7 @@ var nexmo = new Nexmo({
 
 var verifyRequestId = null; // use in the check process
 var TTS = ""; //use in voice playback
+var VOICE = ""; //use in voice playback
 
 app.use(bodyParser.json({
     type: 'application/json'
@@ -83,6 +84,7 @@ app.post('/voice/call', (req, res) => {
 
     var TO_NUMBER = req.body.toNum
     TTS = req.body.message
+    VOICE = req.body.voice
 
     nexmo.calls.create({
         to: [{
