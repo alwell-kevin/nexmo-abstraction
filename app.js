@@ -64,6 +64,7 @@ app.get('/verify/validate', (req, res) => {
     var UNIQUE_ID_FROM_VERIFICATION_REQUEST = req.query.id
     var CODE_TO_CHECK = req.query.verifycode
 
+    console.log("IN VERIFY: ", UNIQUE_ID_FROM_VERIFICATION_REQUEST, CODE_TO_CHECK);
 
     nexmo.verify.check({
         request_id: UNIQUE_ID_FROM_VERIFICATION_REQUEST,
@@ -71,7 +72,7 @@ app.get('/verify/validate', (req, res) => {
     }, function (err, result) {
         if (err) {
             console.error(err);
-            res.sendStatus(501);
+            res.json(err);
         } else {
             console.log("Validation result: ", result);
             verifyRequestId = result.request_id;
