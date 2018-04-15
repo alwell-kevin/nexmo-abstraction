@@ -94,8 +94,6 @@ app.get('/verify/validate', (req, res) => {
     });
 });
 
-//Validate the response of a Verification Request
-
 app.post('/voice/call', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
