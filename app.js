@@ -75,8 +75,8 @@ app.get('/verify/validate', (req, res) => {
         } else {
             console.log("Validation result: ", result);
             verifyRequestId = result.request_id;
-            console.log('request_id', verifyRequestId);
-            if (verifyRequestId) {
+            console.log('validation result status: ', result.status);
+            if (result.status === "0") {
                 return res.json({
                     "status": 200,
                     "verifyRequestId": verifyRequestId,
