@@ -18,7 +18,7 @@ var nexmo = new Nexmo({
 var verifyRequestId = null; // use in the check process
 var TTS = ""; //use in voice playback
 var VOICE = ""; //use in voice playback
-
+var NEXMO_TO_NUMBER = "";
 app.use(bodyParser.json({
     type: 'application/json'
 }));
@@ -30,7 +30,7 @@ app.post('/verify/request', (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
 
-    var NEXMO_TO_NUMBER = req.body.number
+    NEXMO_TO_NUMBER = req.body.number
     console.log("req.body", req.body);
 
     nexmo.verify.request({
@@ -45,7 +45,8 @@ app.post('/verify/request', (req, res) => {
 
             return res.json({
                 "status": 200,
-                "verifyRequestId": verifyRequestId
+                "verifyRequestId": verifyRequestId,
+                "result": result
             });
         }
     }, function (resp) {
@@ -100,27 +101,31 @@ app.post('/voice/call', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+    if (req.body.toNum === NEXMO_TO_NUMBER) {
 
-    var TO_NUMBER = req.body.toNum
-    TTS = req.body.message
-    VOICE = req.body.voice
-    console.log("to: ", TO_NUMBER, "TTS: ", TTS, "voice: ", VOICE);
+        TTS = req.body.message
+        VOICE = req.body.voice
+        console.log("to: ", NEXMO_TO_NUMBER, "TTS: ", TTS, "voice: ", VOICE);
 
-    nexmo.calls.create({
-        to: [{
-            type: 'phone',
-            number: TO_NUMBER
-        }],
-        from: {
-            type: 'phone',
-            number: process.env.NEXMO_NUMBER
-        },
-        answer_url: ['https://nexmo-abstraction.herokuapp.com/answer']
-    }, function callback(resp) {
-        console.log("IN CREATE CALL CALLBACK: ", resp)
-    });
+        nexmo.calls.create({
+            to: [{
+                type: 'phone',
+                number: NEXMO_TO_NUMBER
+            }],
+            from: {
+                type: 'phone',
+                number: process.env.NEXMO_NUMBER
+            },
+            answer_url: ['https://nexmo-abstraction.herokuapp.com/answer']
+        }, function callback(resp) {
+            console.log("IN CREATE CALL CALLBACK: ", resp)
+        });
 
-    res.sendStatus(200);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(500);
+        return
+    }
 });
 
 
