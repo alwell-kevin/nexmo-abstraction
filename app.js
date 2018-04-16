@@ -162,6 +162,22 @@ app.post('/event', function (req, res) {
 })
 
 
+//Validate the response of a Verification Request
+
+app.post('/verify/cancel', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+
+    var UNIQUE_ID_FROM_VERIFICATION_REQUEST = req.body.id
+
+    console.log("IN VERIFY cancel: ", UNIQUE_ID_FROM_VERIFICATION_REQUEST);
+    nexmo.verify.control({request_id:UNIQUE_ID_FROM_VERIFICATION_REQUEST,cmd:'cancel'},function(resp){console.log("Cancel Verify Resp: ", resp)});
+    
+    res.sendStatus(200);
+});
+
 // Start server
 app.listen(port, () => {
     console.log('Express server started on port ' + port);
