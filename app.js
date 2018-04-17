@@ -114,7 +114,7 @@ app.post('/voice/call', (req, res) => {
         nexmo.calls.create({
             to: [{
                 type: 'phone',
-                number: NEXMO_TO_NUMBER
+                number: req.body.toNum
             }],
             from: {
                 type: 'phone',
