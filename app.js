@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const port = process.env.PORT || 3000;
 var cors = require('cors')
 var app = express();
-app.use(cors())
+app.use(cors());
 
 
 var Nexmo = require('nexmo');
@@ -21,6 +21,7 @@ var verifyRequestId = null; // use in the check process
 var TTS = ""; //use in voice playback
 var VOICE = ""; //use in voice playback
 var NEXMO_TO_NUMBER = "";
+var validatedNumbers = [];
 app.use(bodyParser.json({
     type: 'application/json'
 }));
@@ -81,6 +82,7 @@ app.get('/verify/validate', (req, res) => {
             verifyRequestId = result.request_id;
             console.log('validation result status: ', result.status);
             if (result.status === "0") {
+                validatedNumbers.push(NEXMO_TO_NUMBER);
                 return res.json({
                     "status": 200,
                     "verifyRequestId": verifyRequestId,
@@ -103,7 +105,7 @@ app.post('/voice/call', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-    if (req.body.toNum === NEXMO_TO_NUMBER) {
+    if (validatedNumbers.includes(req.body.toNum)) {
 
         TTS = req.body.message
         VOICE = req.body.voice
