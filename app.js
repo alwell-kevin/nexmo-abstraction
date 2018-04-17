@@ -26,10 +26,10 @@ app.use(bodyParser.json({
 //Submit a verification request
 app.post('/verify/request', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.header("Access-Control-Allow-Origin", "*");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With');
+  
     NEXMO_TO_NUMBER = req.body.number
     console.log("req.body", req.body);
 
