@@ -3,7 +3,9 @@ require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const port = process.env.PORT || 3000;
-const app = express();
+var cors = require('cors')
+var app = express();
+app.use(cors())
 
 
 var Nexmo = require('nexmo');
@@ -29,7 +31,7 @@ app.post('/verify/request', (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With');
-  
+
     NEXMO_TO_NUMBER = req.body.number
     console.log("req.body", req.body);
 
@@ -173,8 +175,13 @@ app.post('/verify/cancel', (req, res) => {
     var UNIQUE_ID_FROM_VERIFICATION_REQUEST = req.body.id
 
     console.log("IN VERIFY cancel: ", UNIQUE_ID_FROM_VERIFICATION_REQUEST);
-    nexmo.verify.control({request_id:UNIQUE_ID_FROM_VERIFICATION_REQUEST,cmd:'cancel'},function(resp){console.log("Cancel Verify Resp: ", resp)});
-    
+    nexmo.verify.control({
+        request_id: UNIQUE_ID_FROM_VERIFICATION_REQUEST,
+        cmd: 'cancel'
+    }, function (resp) {
+        console.log("Cancel Verify Resp: ", resp)
+    });
+
     res.sendStatus(200);
 });
 

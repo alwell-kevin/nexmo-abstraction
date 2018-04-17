@@ -19,6 +19,7 @@
   "homepage": "https://github.com/alwell-kevin/nexmo-abstraction#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "nexmo": "^2.2.0"
