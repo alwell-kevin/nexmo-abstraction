@@ -105,7 +105,7 @@ app.post('/voice/call', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-    if (validatedNumbers.includes(req.body.toNum)) {
+    //if (validatedNumbers.includes(req.body.toNum)) {
 
         TTS = req.body.message
         VOICE = req.body.voice
@@ -126,10 +126,10 @@ app.post('/voice/call', (req, res) => {
         });
 
         res.sendStatus(200);
-    } else {
-        res.sendStatus(500);
-        return
-    }
+    // } else {
+    //     res.sendStatus(500);
+    //     return
+    // }
 });
 
 
