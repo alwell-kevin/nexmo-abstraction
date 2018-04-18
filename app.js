@@ -137,7 +137,7 @@ app.all('/answer', function (req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
     console.log("IN ANSWER!: ", req);
-    
+
     getSession(req.query.to.toString()).then((session) => {
 
         var ncco = [{
@@ -189,6 +189,13 @@ app.post('/verify/cancel', (req, res) => {
 });
 
 function storeMessage(toNum, tts, voice) {
+
+    sessions.forEach((session, index) => {
+        if (toNum === session.num) {
+            sessions.splice(index, 1);
+        }
+    })
+
     var session = {
         "num": toNum,
         "message": tts,
