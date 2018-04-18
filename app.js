@@ -18,9 +18,8 @@ var nexmo = new Nexmo({
 });
 
 var verifyRequestId = null; // use in the check process
-var TTS = ""; //use in voice playback
-var VOICE = ""; //use in voice playback
 var NEXMO_TO_NUMBER = "";
+var sessions = [];
 var validatedNumbers = [];
 app.use(bodyParser.json({
     type: 'application/json'
@@ -107,31 +106,29 @@ app.post('/voice/call', (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
     //if (validatedNumbers.includes(req.body.toNum)) {
 
-        TTS = req.body.message
-        VOICE = req.body.voice
-        console.log("to: ", NEXMO_TO_NUMBER, "TTS: ", TTS, "voice: ", VOICE);
+    var tts = req.body.message;
+    var voice = req.body.voice;
+    var num = req.body.toNum;
+    storeMessage(num, tts, voice);
+    console.log("to: ", num, "TTS: ", tts, "voice: ", voice);
 
-        nexmo.calls.create({
-            to: [{
-                type: 'phone',
-                number: req.body.toNum
-            }],
-            from: {
-                type: 'phone',
-                number: process.env.NEXMO_NUMBER
-            },
-            answer_url: ['https://nexmo-abstraction.herokuapp.com/answer']
-        }, function callback(resp) {
-            console.log("IN CREATE CALL CALLBACK: ", resp)
-        });
+    nexmo.calls.create({
+        to: [{
+            type: 'phone',
+            number: num
+        }],
+        from: {
+            type: 'phone',
+            number: process.env.NEXMO_NUMBER
+        },
+        answer_url: ['https://nexmo-abstraction.herokuapp.com/answer']
+    }, function callback(resp) {
+        console.log("IN CREATE CALL CALLBACK: ", resp)
+    });
 
-        res.sendStatus(200);
-    // } else {
-    //     res.sendStatus(500);
-    //     return
-    // }
+    res.sendStatus(200);
+    // } 
 });
-
 
 
 app.all('/answer', function (req, res) {
@@ -139,20 +136,24 @@ app.all('/answer', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+    console.log("IN ANSWER!: ", req);
+    
+    getSession(req.query.to.toString()).then((session) => {
 
-    var ncco = [{
-            "action": "talk",
-            "text": "This call is enabled by Nexmo Voice API.",
-            "voiceName": VOICE
-        },
-        {
-            "action": "talk",
-            "text": TTS,
-            "voiceName": VOICE
-        }
-    ];
+        var ncco = [{
+                "action": "talk",
+                "text": "This call is enabled by Nexmo Voice API.",
+                "voiceName": session.voice
+            },
+            {
+                "action": "talk",
+                "text": session.message,
+                "voiceName": session.voice
+            }
+        ];
 
-    res.json(ncco);
+        return res.json(ncco);
+    })
 })
 
 
@@ -186,6 +187,28 @@ app.post('/verify/cancel', (req, res) => {
 
     res.sendStatus(200);
 });
+
+function storeMessage(toNum, tts, voice) {
+    var session = {
+        "num": toNum,
+        "message": tts,
+        "voice": voice
+    }
+
+    sessions.push(session);
+}
+
+function getSession(toNum) {
+    return new Promise((resolve, reject) => {
+        sessions.forEach((session) => {
+            console.log("SESSION: ", session, "TONUM: ", toNum)
+            if (toNum === session.num) {
+                console.log("GOT SESSION: ", session);
+                resolve(session)
+            }
+        })
+    })
+}
 
 // Start server
 app.listen(port, () => {
